@@ -34,7 +34,7 @@
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
-      var margin = {top: 120, right: 20, bottom: 30, left: 20};
+      var margin = {top: 120, right: 20, bottom: 30, left: 160};
 
       var width = window.innerWidth - margin.left - margin.right,
           height = data.length * 16;
@@ -62,6 +62,10 @@
         .rangeRound([margin.top, height])
         .padding(1)
 
+      var yLinear = d3.scaleLinear()
+        .domain([0, data.length])
+        .rangeRound([margin.top, height])
+
       var xAxis = g => g
         .attr("transform", `translate(0,${margin.top})`)
         .call(d3.axisTop(x))
@@ -71,7 +75,6 @@
       var xAxisBottom = g => g
         .attr("transform", `translate(0,${height + margin.top - margin.bottom})`)
         .call(d3.axisBottom(x))
-        // .call(g => g.selectAll(".tick").remove())
         .call(g => g.selectAll(".domain").remove())
 
       svg.append("g")
@@ -81,6 +84,7 @@
         .call(xAxisBottom)
 
       const g = svg.append("g")
+          // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
           .attr("text-anchor", "end")
           .style("font", "10px sans-serif")
         .selectAll("g")
@@ -164,6 +168,11 @@
               .style("pointer-events", "none")
               .style("font", "10px sans-serif");
 
+          // const rect = g.selectAll("rect")
+          //   .data([null])
+          //   .join("rect")
+          //     .attr("fill", "white");
+
           const path = g.selectAll("path")
             .data([null])
             .join("path")
@@ -209,20 +218,82 @@
 
           const {x, y, width: w, height: h} = text.node().getBBox();
 
+          // rect.attr("dx", 0).attr("y", 0).attr("width", w).attr("height", h);
           text.attr("transform", `translate(${-w / 2},${15 - y})`);
           path.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
         }
 
       const tooltip = svg.append("g");
+      const name = svg.append("g")
 
-      // svg.on("touchmove mousemove", function(event) {
-      //   const {date, value} = bisect(d3.pointer(event, this)[0]);
-      //
-      //   tooltip
-      //       .attr("transform", `translate(${x(date)},${y(value)})`)
-      //       .call(callout, `${formatValue(value)} ${formatDate(date)}`);
-      // });
-      //
+      svg.on("touchmove mousemove", function(event) {
+        // const bisect = d3.bisector(d => d.date).left;
+        let thisY = d3.pointer(event, this)[1],
+            index = Math.floor(yLinear.invert(thisY)) - 1;
+        let project = data[index];
+        // console.log(y(0), thisY, margin.top, yLinear.invert(thisY), index)
+        if (y(0) - 8 < thisY && thisY < height - margin.bottom){
+          // console.log(project)
+          name
+              .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
+              .call(calloutName, `${project['descripcion']['titulo']}`);
+
+          g.style("opacity", 0.2)
+          g.filter(d => d == project)
+            .style("opacity", 1)
+
+        } else {
+          name.call(calloutName, null);
+          g.style("opacity", 1);
+        }
+        // const {date, value} = bisect(d3.pointer(event, this)[0]);
+
+      });
+
+      calloutName = (g, value) => {
+        if (!value) return g.style("display", "none");
+
+        g
+            .style("display", null)
+            .style("pointer-events", "none")
+            .style("font", "10px sans-serif");
+
+        const text = g.selectAll("text")
+          .data([null])
+          .join("text")
+          .text(value)
+          .call(wrap, margin.left);
+
+        function wrap(text, width) {
+          text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                bold = true,
+                y = text.attr("y"),
+                dy = parseFloat("0"),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em").style("font-weight", "bold");
+            while (word = words.pop()) {
+              line.push(word);
+              tspan.text(line.join(" "));
+              if (tspan.node().getComputedTextLength() > width || word[word.length -1] == ':') {
+                line.pop();
+                tspan.text(line.join(" ")).style("font-weight", "bold");
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0).attr("y", ++lineNumber * lineHeight + dy + "em").attr("dy", 0).text(word).style("font-weight", "bold");
+              }
+            }
+          });
+          }
+
+        const {x, y, width: w, height: h} = text.node().getBBox();
+
+        text.attr("transform", `translate(${-w - 10},0)`);
+      }
+
       // svg.on("touchend mouseleave", () => tooltip.call(callout, null));
 
 
