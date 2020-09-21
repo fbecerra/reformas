@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Timeline</title>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script>
+    Promise.all([d3.json("data/data.json")]).then(function(projects){
+      data = projects[0];
+      console.log(data)
+
+      const keys =[['indicaciones', 'indicacion', 'FECHA'], ['informes', 'informe', 'FECHAINFORME'],
+        ['oficios', 'oficio', 'FECHA'], ['tramitacion', 'tramite', 'FECHA'],
+        ['urgencias', 'urgencia', 'FECHAINGRESO'], ['votaciones', 'votacion', 'FECHA']]
+
+      var parseTime = d3.timeParse("%d/%m/%Y"),
+          formatTime = d3.timeFormat("%d de %B de %Y");
+
+      data.forEach(function(d){
+        d['camaras'].forEach(function(e){
+          e['inicio'] = parseTime(e['inicio']);
+          e['termino'] = parseTime(e['termino']);
+        })
+        for (var i=0; i < keys.length; i++){
+          let thisKey = keys[i];
+          if (d[thisKey[0]] !== null){
+            d[thisKey[0]].forEach(function(e){
+              e['FECHA'] = parseTime(e[thisKey[2]])
+            })
+          }
+        }
+      })
+
+      let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
+          maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
+
+      var margin = {top: 120, right: 20, bottom: 30, left: 20};
+
+      var width = window.innerWidth - margin.left - margin.right,
+          height = data.length * 16;
+          // height = window.innerHeight - margin.top - margin.bottom;
+
+      var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+      //
+      // var tooltip = d3.select("body").append("div")
+      //   .attr("class", "tooltip")
+      //   .style("opacity", 0);
+      //
+      // var g = svg.append("g")
+      //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+     var colorScale = d3.schemeSpectral[9];
+
+      var x = d3.scaleUtc()
+        .domain([minDate, maxDate])
+        .range([margin.left, width - margin.right])
+
+      var y = d3.scalePoint()
+        .domain(d3.range(data.length))
+        .rangeRound([margin.top, height])
+        .padding(1)
+
+      var xAxis = g => g
+        .attr("transform", `translate(0,${margin.top})`)
+        .call(d3.axisTop(x))
+        .call(g => g.selectAll(".tick line").clone().attr("stroke-opacity", 0.05).attr("y2", height - margin.bottom))
+        .call(g => g.selectAll(".domain").remove())
+
+      var xAxisBottom = g => g
+        .attr("transform", `translate(0,${height + margin.top - margin.bottom})`)
+        .call(d3.axisBottom(x))
+        // .call(g => g.selectAll(".tick").remove())
+        .call(g => g.selectAll(".domain").remove())
+
+      svg.append("g")
+        .call(xAxis)
+
+      svg.append("g")
+        .call(xAxisBottom)
+
+      const g = svg.append("g")
+          .attr("text-anchor", "end")
+          .style("font", "10px sans-serif")
+        .selectAll("g")
+        .data(data)
+        .join("g")
+          .attr("transform", (d, i) => `translate(0,${y(i)})`);
+
+      g.append("line")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", 1.0)
+        .attr("x1", d => x(d3.min(d['tramitacion'], k => k['FECHA'])))
+        .attr("x2", d => x(d3.max(d['tramitacion'], k => k['FECHA'])));
+
+      g.selectAll(".senado")
+        .data(d => d['camaras'].filter(e => e['camara'] == 'Senado'))
+        .join("line")
+          .attr("stroke", "#aaa")
+          .attr("stroke-width", 3)
+          .attr("x1", d => x(d['inicio']))
+          .attr("x2", d => x(d['termino']));
+
+      g.append("g")
+        .selectAll(".tramite")
+        .data(d => d['tramitacion'])
+        .join("circle")
+          .attr("class", "tramite")
+          .attr("opacity", 1.0)
+          .attr("cx", d => x(d['FECHA']))
+          .attr("fill", "#377eb8")
+          .attr("r", 3.5)
+          .on("mouseover", function(event, d){
+            tooltip
+                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
+                .call(callout, `Sesion ${d['SESION']} Cámara: ${d['CAMARATRAMITE']} Etapa: ${d['ETAPDESCRIPCION']} Descripción: ${d['DESCRIPCIONTRAMITE']}`);
+          })
+          .on("mouseleave", function(event, d){
+            tooltip.call(callout, null);
+          });;
+
+      g.append("g")
+        .selectAll(".oficio")
+        .data(d => d['oficios'] == null ? [] : d['oficios'])
+        .join("circle")
+          .attr("class", "oficio")
+          .attr("opacity", 1.0)
+          .attr("cx", d => x(d['FECHA']))
+          .attr("fill", "#e41a1c")
+          .attr("r", 3.5)
+          .on("mouseover", function(event, d){
+            tooltip
+                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
+                .call(callout, `Oficio número ${d['NUMERO']} Detalle: ${d['DESCRIPCION']} Fecha: ${formatTime(d['FECHA'])} Etapa: ${d['ETAPA']} Trámite: ${d['TRAMITE']} Tipo: ${d['TIPO']}`);
+          })
+          .on("mouseleave", function(event, d){
+            tooltip.call(callout, null);
+          });;
+
+      g.append("g")
+        .selectAll(".informe")
+        .data(d => d['informes'] == null ? [] : d['informes'])
+        .join("circle")
+          .attr("class", "informe")
+          .attr("opacity", 1.0)
+          .attr("cx", d => x(d['FECHA']))
+          .attr("fill", "#4daf4a")
+          .attr("r", 3.5)
+          .on("mouseover", function(event, d){
+            tooltip
+                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
+                .call(callout, `${d['TRAMITE']} Fecha: ${formatTime(d['FECHA'])} Etapa: ${d['ETAPA']}`);
+          })
+          .on("mouseleave", function(event, d){
+            tooltip.call(callout, null);
+          });
+
+        callout = (g, value) => {
+          if (!value) return g.style("display", "none");
+
+          g
+              .style("display", null)
+              .style("pointer-events", "none")
+              .style("font", "10px sans-serif");
+
+          const path = g.selectAll("path")
+            .data([null])
+            .join("path")
+              .attr("fill", "white")
+              .attr("stroke", "black");
+
+          const text = g.selectAll("text")
+            .data([null])
+            .join("text")
+            .text(value)
+            .call(wrap, 200);
+
+          function wrap(text, width) {
+            text.each(function() {
+              var text = d3.select(this),
+                  words = text.text().split(/\s+/).reverse(),
+                  word,
+                  line = [],
+                  lineNumber = 0,
+                  lineHeight = 1.1, // ems
+                  bold = true,
+                  y = text.attr("y"),
+                  dy = parseFloat("0"),
+                  tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+              while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width || word[word.length -1] == ':') {
+                  line.pop();
+                  tspan.text(line.join(" "));
+                  if (bold){
+                    tspan.style("font-weight", "bold")
+                  }
+                  line = [word];
+                  tspan = text.append("tspan").attr("x", 0).attr("y", ++lineNumber * lineHeight + dy + "em").attr("dy", 0).text(word);
+                  if (word[word.length -1] == ':') {
+                    bold = false;
+                  }
+                }
+              }
+            });
+            }
+
+          const {x, y, width: w, height: h} = text.node().getBBox();
+
+          text.attr("transform", `translate(${-w / 2},${15 - y})`);
+          path.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+        }
+
+      const tooltip = svg.append("g");
+
+      // svg.on("touchmove mousemove", function(event) {
+      //   const {date, value} = bisect(d3.pointer(event, this)[0]);
+      //
+      //   tooltip
+      //       .attr("transform", `translate(${x(date)},${y(value)})`)
+      //       .call(callout, `${formatValue(value)} ${formatDate(date)}`);
+      // });
+      //
+      // svg.on("touchend mouseleave", () => tooltip.call(callout, null));
+
+
+    })
+
+  </script>
+  <style>
+    .tooltip {
+      position: absolute;
+      z-index: 1;
+      opacity: 0;
+      background: #efefef;
+      box-sizing: border-box;
+      padding: 10px;
+      text-align: center;
+      pointer-events: none;
+      font-family: sans-serif;
+      font-size: 12px;
+    }
+
+    .tooltip table td {
+      padding: 2px 10px;
+    }
+
+    .tooltip table td.right-aligned {
+      text-align: right;
+    }
+
+    .tooltip table td.left-aligned {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #efefef transparent transparent transparent;
+    }
+
+    .details{
+      font-family: sans-serif;
+      font-size: 10px;
+      text-anchor: middle;
+    }
+
+    circle {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+</body>
+</html>
