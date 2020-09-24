@@ -31,13 +31,15 @@
         }
       })
 
+      const lineHeight = 16;
+
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
-      var margin = {top: 60, right: 20, bottom: 20, left: 160};
+      var margin = {top: 60, right: 20, bottom: 20, left: 180};
 
       var width = window.innerWidth - margin.left - margin.right,
-          height = data.length * 16;
+          height = data.length * lineHeight;
           // height = window.innerHeight - margin.top - margin.bottom;
 
       var svg = d3.select("body").append("svg")
@@ -57,19 +59,16 @@
         .domain([minDate, maxDate])
         .range([margin.left, width - margin.right])
 
-      var y = d3.scalePoint()
-        .domain(d3.range(data.length))
-        .rangeRound([margin.top, height])
-        .padding(1)
-
-      var yLinear = d3.scaleLinear()
+      var y = d3.scaleLinear()
         .domain([0, data.length])
-        .rangeRound([margin.top, height])
+        .rangeRound([margin.top + lineHeight/2, height])
 
       var xAxis = g => g
         .attr("transform", `translate(0,${margin.top})`)
         .call(d3.axisTop(x))
-        .call(g => g.selectAll(".tick line").clone().attr("stroke-opacity", 0.05).attr("y2", height - margin.bottom))
+        .call(g => g.selectAll(".tick line").clone()
+                  .attr("stroke-opacity", 0.05)
+                  .attr("y2", height - margin.bottom))
         .call(g => g.selectAll(".domain").remove())
 
       var xAxisBottom = g => g
@@ -90,7 +89,7 @@
         .selectAll("g")
         .data(data)
         .join("g")
-          .attr("transform", (d, i) => `translate(0,${yLinear(i)})`);
+          .attr("transform", (d, i) => `translate(0,${y(i)})`);
 
       g.append("line")
         .attr("stroke", "#aaa")
@@ -183,7 +182,7 @@
             .data([null])
             .join("text")
             .text(value)
-            .call(wrap, 200);
+            .call(wrap, 180);
 
           function wrap(text, width) {
             text.each(function() {
@@ -229,13 +228,13 @@
       svg.on("touchmove mousemove", function(event) {
         // const bisect = d3.bisector(d => d.date).left;
         let thisY = d3.pointer(event, this)[1],
-            index = Math.floor(yLinear.invert(thisY + 8));
+            index = Math.floor(y.invert(thisY + 8));
         let project = data[index];
-        // console.log(y(0), thisY, margin.top, yLinear.invert(thisY), index)
-        if (yLinear(0) - 8 < thisY && thisY < height - margin.bottom){
+        // console.log(y(0), thisY, margin.top, y.invert(thisY), index)
+        if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom){
           // console.log(project)
           name
-              .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${yLinear(index)})`)
+              .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
               .call(calloutName, `${project['descripcion']['titulo']}`);
 
           g.style("opacity", 0.2)
@@ -262,7 +261,7 @@
           .data([null])
           .join("text")
           .text(value)
-          .call(wrap, margin.left);
+          .call(wrap, margin.left - 20);
 
         function wrap(text, width) {
           text.each(function() {
