@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script>
-    Promise.all([d3.json("data/data.json")]).then(function(projects){
+    Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       data = projects[0];
       console.log(data)
 
@@ -34,7 +34,7 @@
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
-      var margin = {top: 120, right: 20, bottom: 30, left: 160};
+      var margin = {top: 60, right: 20, bottom: 20, left: 160};
 
       var width = window.innerWidth - margin.left - margin.right,
           height = data.length * 16;
@@ -90,7 +90,7 @@
         .selectAll("g")
         .data(data)
         .join("g")
-          .attr("transform", (d, i) => `translate(0,${y(i)})`);
+          .attr("transform", (d, i) => `translate(0,${yLinear(i)})`);
 
       g.append("line")
         .attr("stroke", "#aaa")
@@ -229,13 +229,13 @@
       svg.on("touchmove mousemove", function(event) {
         // const bisect = d3.bisector(d => d.date).left;
         let thisY = d3.pointer(event, this)[1],
-            index = Math.floor(yLinear.invert(thisY)) - 1;
+            index = Math.floor(yLinear.invert(thisY + 8));
         let project = data[index];
         // console.log(y(0), thisY, margin.top, yLinear.invert(thisY), index)
-        if (y(0) - 8 < thisY && thisY < height - margin.bottom){
+        if (yLinear(0) - 8 < thisY && thisY < height - margin.bottom){
           // console.log(project)
           name
-              .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
+              .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${yLinear(index)})`)
               .call(calloutName, `${project['descripcion']['titulo']}`);
 
           g.style("opacity", 0.2)
