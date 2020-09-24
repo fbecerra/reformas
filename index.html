@@ -227,11 +227,13 @@
 
       svg.on("touchmove mousemove", function(event) {
         // const bisect = d3.bisector(d => d.date).left;
-        let thisY = d3.pointer(event, this)[1],
+        let thisX = d3.pointer(event, this)[0],
+            thisY = d3.pointer(event, this)[1],
             index = Math.floor(y.invert(thisY + 8));
         let project = data[index];
-        // console.log(y(0), thisY, margin.top, y.invert(thisY), index)
-        if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom){
+        // console.log(thisX, margin.left/2, width + margin.left/2)
+        if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom &&
+            margin.left/2 < thisX  && thisX < width + margin.left/2){
           // console.log(project)
           name
               .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
