@@ -85,7 +85,7 @@
 
       const g = svg.append("g")
           // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-          .attr("text-anchor", "end")
+          // .attr("text-anchor", "end")
           .style("font", "10px sans-serif")
         .selectAll("g")
         .data(data)
@@ -178,24 +178,24 @@
         .attr("width", iconHeight + "px")
         .attr("height", iconHeight + "px")
 
-      // g.append('text')
-      //   .attr("x", width)
-      //   .attr("y", lineHeight/4)
-      //   .style("text-align", "left")
-      //   .style("vertical-align", "middle")
-      //   .attr('fill', function(d){
-      //     let color;
-      //     let status = d['descripcion']['estado'].toLowerCase();
-      //     if (status.includes("publicado")) {
-      //       color = '#238b45'
-      //     } else if (status.includes("en tramitación")) {
-      //       color = '#ec7014'
-      //     } else {
-      //       color = '#cb181d'
-      //     }
-      //     return color;
-      //   })
-      //   .text(d => d['descripcion']['estado'])
+      g.append('text')
+        .attr("x", width)
+        .attr("y", lineHeight/4)
+        .style("text-anchor", "left")
+        .style("vertical-align", "middle")
+        .attr('fill', function(d){
+          let color;
+          let status = d['descripcion']['estado'].toLowerCase();
+          if (status.includes("publicado")) {
+            color = '#238b45'
+          } else if (status.includes("en tramitación")) {
+            color = '#ec7014'
+          } else {
+            color = '#cb181d'
+          }
+          return color;
+        })
+        .text(d => d['descripcion']['estado'])
 
         callout = (g, value) => {
           if (!value) return g.style("display", "none");
@@ -271,7 +271,7 @@
         let project = data[index];
         // console.log(thisX, margin.left/2, width + margin.left/2)
         if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom &&
-            margin.left/2 < thisX  && thisX < width + margin.left/2){
+            margin.left < thisX  && thisX < width){
           // console.log(project)
           name
               .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
