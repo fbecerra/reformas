@@ -32,6 +32,7 @@
       })
 
       const lineHeight = 16;
+      const iconHeight = lineHeight;
 
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
@@ -159,6 +160,43 @@
             tooltip.call(callout, null);
           });
 
+      g.append('svg:image')
+        .attr('xlink:href', function(d){
+          let icon;
+          let status = d['descripcion']['estado'].toLowerCase();
+          if (status.includes("publicado")) {
+            icon = 'img/checkmark-circle-outline.svg'
+          } else if (status.includes("en tramitación")) {
+            icon = 'img/refresh-circle-outline.svg'
+          } else {
+            icon = 'img/close-circle-outline.svg'
+          }
+          return icon;
+        })
+        .attr("x", d => x(d['tramitacion'][d['tramitacion'].length-1]['FECHA']) + 10)
+        .attr("y", -iconHeight/2)
+        .attr("width", iconHeight + "px")
+        .attr("height", iconHeight + "px")
+
+      // g.append('text')
+      //   .attr("x", width)
+      //   .attr("y", lineHeight/4)
+      //   .style("text-align", "left")
+      //   .style("vertical-align", "middle")
+      //   .attr('fill', function(d){
+      //     let color;
+      //     let status = d['descripcion']['estado'].toLowerCase();
+      //     if (status.includes("publicado")) {
+      //       color = '#238b45'
+      //     } else if (status.includes("en tramitación")) {
+      //       color = '#ec7014'
+      //     } else {
+      //       color = '#cb181d'
+      //     }
+      //     return color;
+      //   })
+      //   .text(d => d['descripcion']['estado'])
+
         callout = (g, value) => {
           if (!value) return g.style("display", "none");
 
@@ -229,7 +267,7 @@
         // const bisect = d3.bisector(d => d.date).left;
         let thisX = d3.pointer(event, this)[0],
             thisY = d3.pointer(event, this)[1],
-            index = Math.floor(y.invert(thisY + 8));
+            index = Math.floor(y.invert(thisY + lineHeight/2));
         let project = data[index];
         // console.log(thisX, margin.left/2, width + margin.left/2)
         if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom &&
