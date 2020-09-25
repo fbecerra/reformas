@@ -31,13 +31,19 @@
         }
       })
 
-      const lineHeight = 16;
-      const iconHeight = lineHeight;
+      const lineHeight = 16,
+            iconHeight = lineHeight,
+            circleOpacity = 0.9;
 
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
       var margin = {top: 60, right: 20, bottom: 20, left: 180};
+
+      var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("max-width", margin.left + "px");
 
       var width = window.innerWidth - margin.left - margin.right,
           height = data.length * lineHeight;
@@ -111,17 +117,25 @@
         .data(d => d['tramitacion'])
         .join("circle")
           .attr("class", "tramite")
-          .attr("opacity", 1.0)
+          .attr("opacity", circleOpacity)
           .attr("cx", d => x(d['FECHA']))
-          .attr("fill", "#377eb8")
+          .attr("fill", "#225ea8")
           .attr("r", 3.5)
           .on("mouseover", function(event, d){
-            tooltip
-                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
-                .call(callout, `Sesion ${d['SESION']} Cámara: ${d['CAMARATRAMITE']} Etapa: ${d['ETAPDESCRIPCION']} Descripción: ${d['DESCRIPCIONTRAMITE']}`);
+            tooltip.html(`<p><strong>Sesion ${d['SESION']}</strong></p>
+                  <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                  <p><strong>Cámara:</strong> ${d['CAMARATRAMITE']}</p>
+                  <p><strong>Etapa:</strong> ${d['ETAPDESCRIPCION']}</p>
+                  <p><strong>Descripción:</strong> ${d['DESCRIPCIONTRAMITE']}</p>`)
+
+            var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+                yOffset = tooltip.node().getBoundingClientRect().height;
+            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+              .style("top", event.pageY - yOffset - 15 + "px")
+              .transition().duration(200).style("opacity", 0.9);
           })
           .on("mouseleave", function(event, d){
-            tooltip.call(callout, null);
+            tooltip.transition().duration(200).style("opacity", 0);
           });;
 
       g.append("g")
@@ -129,17 +143,26 @@
         .data(d => d['oficios'] == null ? [] : d['oficios'])
         .join("circle")
           .attr("class", "oficio")
-          .attr("opacity", 1.0)
+          .attr("opacity", circleOpacity)
           .attr("cx", d => x(d['FECHA']))
-          .attr("fill", "#e41a1c")
+          .attr("fill", "#41b6c4")
           .attr("r", 3.5)
           .on("mouseover", function(event, d){
-            tooltip
-                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
-                .call(callout, `Oficio número ${d['NUMERO']} Detalle: ${d['DESCRIPCION']} Fecha: ${formatTime(d['FECHA'])} Etapa: ${d['ETAPA']} Trámite: ${d['TRAMITE']} Tipo: ${d['TIPO']}`);
+            tooltip.html(`<p><strong>Oficio número ${d['NUMERO']}</strong></p>
+                  <p><strong>Detalle:</strong> ${d['DESCRIPCION']}</p>
+                  <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                  <p><strong>Etapa:</strong> ${d['ETAPA']}</p>
+                  <p><strong>Trámite:</strong> ${d['TRAMITE']}</p>
+                  <p><strong>Tipo:</strong> ${d['TIPO']}</p>`)
+
+            var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+                yOffset = tooltip.node().getBoundingClientRect().height;
+            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+              .style("top", event.pageY - yOffset - 15 + "px")
+              .transition().duration(200).style("opacity", 0.9);
           })
           .on("mouseleave", function(event, d){
-            tooltip.call(callout, null);
+            tooltip.transition().duration(200).style("opacity", 0);
           });;
 
       g.append("g")
@@ -147,17 +170,23 @@
         .data(d => d['informes'] == null ? [] : d['informes'])
         .join("circle")
           .attr("class", "informe")
-          .attr("opacity", 1.0)
+          .attr("opacity", circleOpacity)
           .attr("cx", d => x(d['FECHA']))
-          .attr("fill", "#4daf4a")
+          .attr("fill", "#c7e9b4")
           .attr("r", 3.5)
           .on("mouseover", function(event, d){
-            tooltip
-                .attr("transform", `translate(${x(d['FECHA'])},${event.pageY})`)
-                .call(callout, `${d['TRAMITE']} Fecha: ${formatTime(d['FECHA'])} Etapa: ${d['ETAPA']}`);
+            tooltip.html(`<p><strong>${d['TRAMITE']}</strong></p>
+                  <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                  <p><strong>Etapa:</strong> ${d['ETAPA']}</p>`)
+
+            var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+                yOffset = tooltip.node().getBoundingClientRect().height;
+            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+              .style("top", event.pageY - yOffset - 15 + "px")
+              .transition().duration(200).style("opacity", 0.9);
           })
           .on("mouseleave", function(event, d){
-            tooltip.call(callout, null);
+            tooltip.transition().duration(200).style("opacity", 0);
           });
 
       g.append('svg:image')
@@ -179,7 +208,7 @@
         .attr("height", iconHeight + "px")
 
       g.append('text')
-        .attr("x", width)
+        .attr("x", width + 20)
         .attr("y", lineHeight/4)
         .style("text-anchor", "left")
         .style("vertical-align", "middle")
@@ -197,70 +226,6 @@
         })
         .text(d => d['descripcion']['estado'])
 
-        callout = (g, value) => {
-          if (!value) return g.style("display", "none");
-
-          g
-              .style("display", null)
-              .style("pointer-events", "none")
-              .style("font", "10px sans-serif");
-
-          // const rect = g.selectAll("rect")
-          //   .data([null])
-          //   .join("rect")
-          //     .attr("fill", "white");
-
-          const path = g.selectAll("path")
-            .data([null])
-            .join("path")
-              .attr("fill", "white")
-              .attr("stroke", "black");
-
-          const text = g.selectAll("text")
-            .data([null])
-            .join("text")
-            .text(value)
-            .call(wrap, 180);
-
-          function wrap(text, width) {
-            text.each(function() {
-              var text = d3.select(this),
-                  words = text.text().split(/\s+/).reverse(),
-                  word,
-                  line = [],
-                  lineNumber = 0,
-                  lineHeight = 1.1, // ems
-                  bold = true,
-                  y = text.attr("y"),
-                  dy = parseFloat("0"),
-                  tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-              while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width || word[word.length -1] == ':') {
-                  line.pop();
-                  tspan.text(line.join(" "));
-                  if (bold){
-                    tspan.style("font-weight", "bold")
-                  }
-                  line = [word];
-                  tspan = text.append("tspan").attr("x", 0).attr("y", ++lineNumber * lineHeight + dy + "em").attr("dy", 0).text(word);
-                  if (word[word.length -1] == ':') {
-                    bold = false;
-                  }
-                }
-              }
-            });
-            }
-
-          const {x, y, width: w, height: h} = text.node().getBBox();
-
-          // rect.attr("dx", 0).attr("y", 0).attr("width", w).attr("height", h);
-          text.attr("transform", `translate(${-w / 2},${15 - y})`);
-          path.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
-        }
-
-      const tooltip = svg.append("g");
       const name = svg.append("g")
 
       svg.on("touchmove mousemove", function(event) {
@@ -270,7 +235,7 @@
             index = Math.floor(y.invert(thisY + lineHeight/2));
         let project = data[index];
         // console.log(thisX, margin.left/2, width + margin.left/2)
-        if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom &&
+        if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom + lineHeight/2 &&
             margin.left < thisX  && thisX < width){
           // console.log(project)
           name
@@ -333,8 +298,6 @@
         text.attr("transform", `translate(${-w - 10},0)`);
       }
 
-      // svg.on("touchend mouseleave", () => tooltip.call(callout, null));
-
 
     })
 
@@ -344,26 +307,19 @@
       position: absolute;
       z-index: 1;
       opacity: 0;
-      background: #efefef;
+      background: rgba(255,255,255,.8);
       box-sizing: border-box;
-      padding: 10px;
-      text-align: center;
+      padding: 4px;
+      text-align: left;
       pointer-events: none;
       font-family: sans-serif;
-      font-size: 12px;
-    }
+      font-size: 11px;
+      border: 1px solid black;
+]    }
 
-    .tooltip table td {
-      padding: 2px 10px;
-    }
-
-    .tooltip table td.right-aligned {
-      text-align: right;
-    }
-
-    .tooltip table td.left-aligned {
-      text-align: left;
-      font-weight: bold;
+    .tooltip p {
+      padding: 0;
+      margin: 2px 0 0 0;
     }
 
     .tooltip::after {
@@ -374,7 +330,7 @@
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
-      border-color: #efefef transparent transparent transparent;
+      border-color: #000 transparent transparent transparent;
     }
 
     .details{
