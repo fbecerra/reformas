@@ -48,17 +48,9 @@
 
       var width = window.innerWidth - margin.left - margin.right,
           height = data.length * lineHeight;
-          // height = window.innerHeight - margin.top - margin.bottom;
 
       var svg = d3.select("body").append("svg")
         .attr("viewBox", [0, 0, width + margin.left + margin.right, height])
-      //
-      // var tooltip = d3.select("body").append("div")
-      //   .attr("class", "tooltip")
-      //   .style("opacity", 0);
-      //
-      // var g = svg.append("g")
-      //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
      var colorScale = d3.schemeSpectral[9];
 
@@ -90,8 +82,6 @@
         .call(xAxisBottom)
 
       const g = svg.append("g")
-          // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-          // .attr("text-anchor", "end")
           .style("font", "10px sans-serif")
         .selectAll("g")
         .data(data)
