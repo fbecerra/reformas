@@ -33,7 +33,8 @@
 
       const lineHeight = 16,
             iconHeight = lineHeight,
-            circleOpacity = 0.9;
+            circleOpacity = 0.9,
+            tooltipOpacity = 1.0;
 
       let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
           maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
@@ -43,7 +44,7 @@
       var tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0)
-        .style("max-width", margin.left + "px");
+        .style("max-width", margin.left * 4/3 + "px");
 
       var width = window.innerWidth - margin.left - margin.right,
           height = data.length * lineHeight;
@@ -132,7 +133,7 @@
                 yOffset = tooltip.node().getBoundingClientRect().height;
             tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
-              .transition().duration(200).style("opacity", 0.9);
+              .transition().duration(200).style("opacity", tooltipOpacity);
           })
           .on("mouseleave", function(event, d){
             tooltip.transition().duration(200).style("opacity", 0);
@@ -159,7 +160,7 @@
                 yOffset = tooltip.node().getBoundingClientRect().height;
             tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
-              .transition().duration(200).style("opacity", 0.9);
+              .transition().duration(200).style("opacity", tooltipOpacity);
           })
           .on("mouseleave", function(event, d){
             tooltip.transition().duration(200).style("opacity", 0);
@@ -183,7 +184,7 @@
                 yOffset = tooltip.node().getBoundingClientRect().height;
             tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
-              .transition().duration(200).style("opacity", 0.9);
+              .transition().duration(200).style("opacity", tooltipOpacity);
           })
           .on("mouseleave", function(event, d){
             tooltip.transition().duration(200).style("opacity", 0);
@@ -307,7 +308,7 @@
       position: absolute;
       z-index: 1;
       opacity: 0;
-      background: rgba(255,255,255,.8);
+      background: rgba(255,255,255,.9);
       box-sizing: border-box;
       padding: 4px;
       text-align: left;
