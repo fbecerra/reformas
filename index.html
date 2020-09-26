@@ -31,7 +31,7 @@
         }
       })
 
-      const lineHeight = 16,
+      const lineHeight = 12,
             iconHeight = lineHeight,
             circleOpacity = 0.9,
             tooltipOpacity = 1.0;
@@ -51,8 +51,7 @@
           // height = window.innerHeight - margin.top - margin.bottom;
 
       var svg = d3.select("body").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("viewBox", [0, 0, width + margin.left + margin.right, height])
       //
       // var tooltip = d3.select("body").append("div")
       //   .attr("class", "tooltip")
@@ -131,7 +130,7 @@
 
             var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
                 yOffset = tooltip.node().getBoundingClientRect().height;
-            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+            tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
               .transition().duration(200).style("opacity", tooltipOpacity);
           })
@@ -158,7 +157,7 @@
 
             var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
                 yOffset = tooltip.node().getBoundingClientRect().height;
-            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+            tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
               .transition().duration(200).style("opacity", tooltipOpacity);
           })
@@ -182,7 +181,7 @@
 
             var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
                 yOffset = tooltip.node().getBoundingClientRect().height;
-            tooltip.style("left", x(d['FECHA']) - xOffset + 8 + "px")
+            tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
               .style("top", event.pageY - yOffset - 15 + "px")
               .transition().duration(200).style("opacity", tooltipOpacity);
           })
@@ -251,7 +250,6 @@
           name.call(calloutName, null);
           g.style("opacity", 1);
         }
-        // const {date, value} = bisect(d3.pointer(event, this)[0]);
 
       });
 
