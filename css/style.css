@@ -1,0 +1,33 @@
+.tooltip {
+  background: rgba(255,255,255,.9);
+  border: 1px solid black;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 11px;
+  opacity: 0;
+  padding: 4px;
+  pointer-events: none;
+  position: absolute;
+  text-align: left;
+  z-index: 1;
+}
+
+.tooltip p {
+  margin: 2px 0 0 0;
+  padding: 0;
+}
+
+.tooltip::after {
+  border-color: #000 transparent transparent transparent;
+  border-style: solid;
+  border-width: 5px;
+  content: "";
+  left: 50%;
+  margin-left: -5px;
+  position: absolute;
+  top: 100%;
+}
+
+circle {
+  cursor: pointer;
+}
