@@ -2,6 +2,16 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   data = projects[0];
   console.log(data)
 
+  var state = {
+    data: null,
+    filteredData: null,
+    status: null,
+    author: null
+  }
+
+  state.data = data;
+  state.filteredData = state.data;
+
   const keys =[['indicaciones', 'indicacion', 'FECHA'],
                ['informes', 'informe', 'FECHAINFORME'],
                ['oficios', 'oficio', 'FECHA'],
@@ -29,7 +39,13 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var status = new Set(data.map(d => d['descripcion']['estado']));
   status = ["Todos"].concat([...status])
-  addOptions("estado", status)
+  state.status = "Todos";
+  let statusOp = addOptions("estado", status);
+  statusOp.on("change", function(d){
+    state.status = d3.select(this).node().value;
+    filterData();
+    updatePlot();
+  })
 
   var authors = data.map(function(d){
     let author = d['autores'];
@@ -45,7 +61,13 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   });
   authors = new Set(authors.flat(2).filter(d => d != null))
   authors = ["Todos"].concat([...authors].sort())
-  addOptions("autor", authors)
+  state.author = "Todos";
+  let authorsOp = addOptions("autor", authors);
+  authorsOp.on("change", function(d){
+    state.author = d3.select(this).node().value;
+    filterData();
+    updatePlot();
+  })
 
   function addOptions(id, values) {
     var element = d3.select("#"+id);
@@ -57,6 +79,46 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     options.exit().remove();
 
     return element;
+  }
+
+  function filterData() {
+    if (state.status == 'Todos') {
+      state.filteredData = state.data
+    } else {
+      state.filteredData = state.data.filter(d => d['descripcion']['estado'] == state.status)
+    }
+
+    if (state.author != 'Todos') {
+      state.filteredData = state.filteredData.filter(function(d){
+        let author = d['autores'];
+        if (author != null) {
+          if (Array.isArray(author)) {
+            // console.log(author.map(e => Object.values(e)).flat())
+            return author.map(e => Object.values(e)).flat().includes(state.author);
+          } else {
+            return state.author == Object.values(d['autores']);
+          }
+        } else {
+          return false;
+        }
+      })
+    }
+    console.log(state.filteredData)
+    // state.filteredData = state.data.filter
+  }
+
+  function updatePlot() {
+    var gProjects = g.selectAll(".project");
+
+    var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d))
+    var filteredP = gProjects.filter(d => state.filteredData.includes(d))
+
+    notFilteredP.transition().duration(500)
+      .style("opacity", 0)
+    filteredP.transition().duration(1000)
+      .style("opacity", 1)
+      .attr("transform", (d, i) => `translate(0,${y(i)})`);
+
   }
 
   const lineHeight = 12,
@@ -111,18 +173,20 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   const g = svg.append("g")
       .style("font", "10px sans-serif")
-    .selectAll("g")
+
+  var gs = g.selectAll("g")
     .data(data)
     .join("g")
+      .attr("class", "project")
       .attr("transform", (d, i) => `translate(0,${y(i)})`);
 
-  g.append("line")
+  gs.append("line")
     .attr("stroke", "#aaa")
     .attr("stroke-width", 1.0)
     .attr("x1", d => x(d3.min(d['tramitacion'], k => k['FECHA'])))
     .attr("x2", d => x(d3.max(d['tramitacion'], k => k['FECHA'])));
 
-  g.selectAll(".senado")
+  gs.selectAll(".senado")
     .data(d => d['camaras'].filter(e => e['camara'] == 'Senado'))
     .join("line")
       .attr("stroke", "#aaa")
@@ -130,7 +194,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .attr("x1", d => x(d['inicio']))
       .attr("x2", d => x(d['termino']));
 
-  g.append("g")
+  gs.append("g")
     .selectAll(".tramite")
     .data(d => d['tramitacion'])
     .join("circle")
@@ -156,7 +220,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         tooltip.transition().duration(200).style("opacity", 0);
       });;
 
-  g.append("g")
+  gs.append("g")
     .selectAll(".oficio")
     .data(d => d['oficios'] == null ? [] : d['oficios'])
     .join("circle")
@@ -183,7 +247,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         tooltip.transition().duration(200).style("opacity", 0);
       });;
 
-  g.append("g")
+  gs.append("g")
     .selectAll(".informe")
     .data(d => d['informes'] == null ? [] : d['informes'])
     .join("circle")
@@ -207,7 +271,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         tooltip.transition().duration(200).style("opacity", 0);
       });
 
-  g.append('svg:image')
+  gs.append('svg:image')
     .attr('xlink:href', function(d){
       let icon;
       let status = d['descripcion']['estado'].toLowerCase();
@@ -225,7 +289,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     .attr("width", iconHeight + "px")
     .attr("height", iconHeight + "px")
 
-  g.append('text')
+  gs.append('text')
     .attr("x", width + 20)
     .attr("y", lineHeight/4)
     .style("text-anchor", "left")
@@ -247,26 +311,26 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   const name = svg.append("g")
 
   svg.on("touchmove mousemove", function(event) {
-    // const bisect = d3.bisector(d => d.date).left;
     let thisX = d3.pointer(event, this)[0],
         thisY = d3.pointer(event, this)[1],
         index = Math.floor(y.invert(thisY + lineHeight/2));
-    let project = data[index];
-    // console.log(thisX, margin.left/2, width + margin.left/2)
+    let project = state.filteredData[index];
+    let gProjects = g.selectAll(".project");
+    var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d));
+    var filteredP = gProjects.filter(d => state.filteredData.includes(d));
     if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom + lineHeight/2 &&
         margin.left < thisX  && thisX < width){
-      // console.log(project)
       name
           .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
           .call(calloutName, `${project['descripcion']['titulo']}`);
 
-      g.style("opacity", 0.2)
-      g.filter(d => d == project)
+      filteredP.style("opacity", 0.2)
+      filteredP.filter(d => d == project)
         .style("opacity", 1)
 
     } else {
       name.call(calloutName, null);
-      g.style("opacity", 1);
+      filteredP.style("opacity", 1);
     }
 
   });
