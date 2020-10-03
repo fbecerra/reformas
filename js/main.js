@@ -2,9 +2,12 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   data = projects[0];
   console.log(data)
 
-  const keys =[['indicaciones', 'indicacion', 'FECHA'], ['informes', 'informe', 'FECHAINFORME'],
-    ['oficios', 'oficio', 'FECHA'], ['tramitacion', 'tramite', 'FECHA'],
-    ['urgencias', 'urgencia', 'FECHAINGRESO'], ['votaciones', 'votacion', 'FECHA']]
+  const keys =[['indicaciones', 'indicacion', 'FECHA'],
+               ['informes', 'informe', 'FECHAINFORME'],
+               ['oficios', 'oficio', 'FECHA'],
+               ['tramitacion', 'tramite', 'FECHA'],
+               ['urgencias', 'urgencia', 'FECHAINGRESO'],
+               ['votaciones', 'votacion', 'FECHA']]
 
   var parseTime = d3.timeParse("%d/%m/%Y"),
       formatTime = d3.timeFormat("%d de %B de %Y");
@@ -113,7 +116,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
         var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
             yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
+        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
           .style("top", event.pageY - yOffset - 15 + "px")
           .transition().duration(200).style("opacity", tooltipOpacity);
       })
@@ -140,7 +143,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
         var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
             yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
+        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
           .style("top", event.pageY - yOffset - 15 + "px")
           .transition().duration(200).style("opacity", tooltipOpacity);
       })
@@ -164,7 +167,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
         var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
             yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + 4 + "px")
+        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
           .style("top", event.pageY - yOffset - 15 + "px")
           .transition().duration(200).style("opacity", tooltipOpacity);
       })
