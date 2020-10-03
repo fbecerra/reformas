@@ -27,6 +27,38 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     }
   })
 
+  var status = new Set(data.map(d => d['descripcion']['estado']));
+  status = ["Todos"].concat([...status])
+  addOptions("estado", status)
+
+  var authors = data.map(function(d){
+    let author = d['autores'];
+    if (author != null) {
+      if (Array.isArray(author)) {
+        return author.map(e => Object.values(e));
+      } else {
+        return  Object.values(d['autores']);
+      }
+    } else {
+      return null;
+    }
+  });
+  authors = new Set(authors.flat(2).filter(d => d != null))
+  authors = ["Todos"].concat([...authors].sort())
+  addOptions("autor", authors)
+
+  function addOptions(id, values) {
+    var element = d3.select("#"+id);
+    var options = element.selectAll("option").data(values);
+
+    options.enter().append("option")
+      .html(d => d);
+
+    options.exit().remove();
+
+    return element;
+  }
+
   const lineHeight = 12,
         iconHeight = lineHeight,
         circleOpacity = 0.9,
