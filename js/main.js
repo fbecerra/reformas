@@ -6,7 +6,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     data: null,
     filteredData: null,
     status: null,
-    author: null
+    author: null,
+    height: null
   }
 
   state.data = data;
@@ -105,6 +106,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   }
 
   function updatePlot() {
+    svg.attr("viewBox", [0, 0, width + margin.left + margin.right, y(state.filteredData.length) + margin.bottom])
+
     var gProjects = g.selectAll(".project");
 
     var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d))
@@ -116,6 +119,11 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .style("opacity", 1)
       .attr("transform", (d, i) => `translate(0,${y(i)})`);
 
+    d3.selectAll(".axis-line")
+      .attr("y2", y(state.filteredData.length) - margin.top)
+
+    d3.select(".bottom-axis").transition().duration(1000)
+      .attr("transform", `translate(0,${y(state.filteredData.length)})`)
   }
 
   const lineHeight = 12,
@@ -133,11 +141,11 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     .style("opacity", 0)
     .style("max-width", margin.left * 4/3 + "px");
 
-  var width = window.innerWidth - margin.left - margin.right,
-      height = data.length * lineHeight;
+  var width = window.innerWidth - margin.left - margin.right;
+  state.height = state.data.length * lineHeight;
 
   var svg = d3.select("body").append("svg")
-    .attr("viewBox", [0, 0, width + margin.left + margin.right, height])
+    .attr("viewBox", [0, 0, width + margin.left + margin.right, state.height + margin.bottom])
 
   var colorScale = d3.schemeSpectral[9];
 
@@ -147,18 +155,20 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var y = d3.scaleLinear()
     .domain([0, data.length])
-    .rangeRound([margin.top + lineHeight/2, height - margin.bottom])
+    .rangeRound([margin.top + lineHeight/2, state.height])
 
   var xAxis = g => g
     .attr("transform", `translate(0,${margin.top})`)
     .call(d3.axisTop(x))
     .call(g => g.selectAll(".tick line").clone()
               .attr("stroke-opacity", 0.05)
-              .attr("y2", height - margin.top - margin.bottom))
+              .attr("class", "axis-line")
+              .attr("y2", state.height - margin.top - margin.bottom))
     .call(g => g.selectAll(".domain").remove())
 
   var xAxisBottom = g => g
-    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .attr("transform", `translate(0,${state.height})`)
+    .attr("class", "bottom-axis")
     .call(d3.axisBottom(x))
     .call(g => g.selectAll(".domain").remove())
 
@@ -315,7 +325,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     let gProjects = g.selectAll(".project");
     var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d));
     var filteredP = gProjects.filter(d => state.filteredData.includes(d));
-    if (y(0) - lineHeight/2 < thisY && thisY < height - margin.bottom + lineHeight/2 &&
+    if (y(0) - lineHeight/2 < thisY && thisY < state.height - margin.bottom + lineHeight/2 &&
         margin.left < thisX  && thisX < width){
       name
           .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
