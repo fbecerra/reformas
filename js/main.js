@@ -93,7 +93,6 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         let author = d['autores'];
         if (author != null) {
           if (Array.isArray(author)) {
-            // console.log(author.map(e => Object.values(e)).flat())
             return author.map(e => Object.values(e)).flat().includes(state.author);
           } else {
             return state.author == Object.values(d['autores']);
@@ -103,8 +102,6 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         }
       })
     }
-    console.log(state.filteredData)
-    // state.filteredData = state.data.filter
   }
 
   function updatePlot() {
@@ -129,7 +126,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
       maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
-  var margin = {top: 60, right: 20, bottom: 20, left: 180};
+  var margin = {top: 60, right: 20, bottom: 80, left: 180};
 
   var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -142,7 +139,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   var svg = d3.select("body").append("svg")
     .attr("viewBox", [0, 0, width + margin.left + margin.right, height])
 
- var colorScale = d3.schemeSpectral[9];
+  var colorScale = d3.schemeSpectral[9];
 
   var x = d3.scaleUtc()
     .domain([minDate, maxDate])
@@ -150,18 +147,18 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var y = d3.scaleLinear()
     .domain([0, data.length])
-    .rangeRound([margin.top + lineHeight/2, height])
+    .rangeRound([margin.top + lineHeight/2, height - margin.bottom])
 
   var xAxis = g => g
     .attr("transform", `translate(0,${margin.top})`)
     .call(d3.axisTop(x))
     .call(g => g.selectAll(".tick line").clone()
               .attr("stroke-opacity", 0.05)
-              .attr("y2", height - margin.bottom))
+              .attr("y2", height - margin.top - margin.bottom))
     .call(g => g.selectAll(".domain").remove())
 
   var xAxisBottom = g => g
-    .attr("transform", `translate(0,${height + margin.top - margin.bottom})`)
+    .attr("transform", `translate(0,${height - margin.bottom})`)
     .call(d3.axisBottom(x))
     .call(g => g.selectAll(".domain").remove())
 
