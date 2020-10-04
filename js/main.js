@@ -366,6 +366,11 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         .style("pointer-events", "none")
         .style("font", "10px sans-serif");
 
+    const rect = g.selectAll("rect")
+      .data([null])
+      .join("rect")
+      .attr("fill", "white")
+
     const text = g.selectAll("text")
       .data([null])
       .join("text")
@@ -400,5 +405,10 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     const {x, y, width: w, height: h} = text.node().getBBox();
 
     text.attr("transform", `translate(${-w - 10},0)`);
+
+    rect.attr("x", -w-10)
+      .attr("y", y)
+      .attr("width", w)
+      .attr("height", h)
   }
 })
