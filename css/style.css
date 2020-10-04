@@ -36,7 +36,7 @@ input {
   border: 1px solid #ced4da;
   height: 2em;
   margin: 0;
-  padding: 0 10px;
+  padding: 0 22px 0 10px;
 }
 
 ::-webkit-input-placeholder {
@@ -50,6 +50,15 @@ input {
 }
 :-ms-input-placeholder {
    font-style: italic;
+}
+
+.delete {
+  position: absolute;
+  left: calc(100% - 50px);
+  width: 40px;
+  font-size: 24px;
+  top: calc(1em - 20px);
+  cursor: pointer;
 }
 
 .tooltip {

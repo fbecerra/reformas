@@ -156,10 +156,22 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   var width = window.innerWidth - margin.left - margin.right;
   state.height = state.data.length * lineHeight;
 
+  var deleteIcon = d3.select(".delete")
+    .on("click", function(d){
+      searchBox.node().value = '';
+      state.label = '';
+      d3.select(this).style("opacity", 0);
+      filterData();
+      updatePlot();
+    });
+
   var searchBox = d3.select("#search-box");
   searchBox.on("change", function(){
     let searchLabel = d3.select(this).node().value;
     state.label = searchLabel;
+    if (state.label != ''){
+      deleteIcon.style("opacity", 1)
+    }
     filterData();
     updatePlot();
   });
