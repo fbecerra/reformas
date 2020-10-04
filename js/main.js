@@ -139,7 +139,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   }
 
   const lineHeight = 12,
-        iconHeight = lineHeight,
+        iconHeight = 10,
         circleOpacity = 0.9,
         tooltipOpacity = 1.0;
 
@@ -328,8 +328,29 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     .attr("width", iconHeight + "px")
     .attr("height", iconHeight + "px")
 
+  gs.append("a")
+    .attr("target", "_blank")
+    .attr("href", d => d['descripcion']['link_mensaje_mocion'])
+    .append('svg:image')
+    .attr('xlink:href', function(d){
+      let icon;
+      let status = d['descripcion']['estado'].toLowerCase();
+      if (status.includes("publicado")) {
+        icon = 'img/checkmark-document-outline.svg'
+      } else if (status.includes("en tramitación")) {
+        icon = 'img/refresh-document-outline.svg'
+      } else {
+        icon = 'img/close-document-outline.svg'
+      }
+      return icon;
+    })
+    .attr("x", d => width + 10)
+    .attr("y", -iconHeight/2-1)
+    .attr("width", iconHeight + "px")
+    .attr("height", iconHeight + "px")
+
   gs.append('text')
-    .attr("x", width + 20)
+    .attr("x", width + 25)
     .attr("y", lineHeight/4)
     .style("text-anchor", "left")
     .style("vertical-align", "middle")
