@@ -13,6 +13,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   state.data = data;
   state.filteredData = state.data;
+  state.label = "";
 
   const keys =[['indicaciones', 'indicacion', 'FECHA'],
                ['informes', 'informe', 'FECHAINFORME'],
@@ -115,6 +116,9 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   function updatePlot() {
     svg.attr("viewBox", [0, 0, width + margin.left + margin.right, y(state.filteredData.length) + margin.bottom])
+
+    tooltip.style("left", 0)
+      .style("top", 0);
 
     var gProjects = g.selectAll(".project");
 
