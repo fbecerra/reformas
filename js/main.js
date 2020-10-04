@@ -41,8 +41,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   })
 
   var status = new Set(data.map(d => d['descripcion']['estado']));
-  status = ["Todos"].concat([...status])
-  state.status = "Todos";
+  status = ["Todos los estados"].concat([...status])
+  state.status = "Todos los estados";
   let statusOp = addOptions("estado", status);
   statusOp.on("change", function(d){
     state.status = d3.select(this).node().value;
@@ -63,8 +63,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     }
   });
   authors = new Set(authors.flat(2).filter(d => d != null))
-  authors = ["Todos"].concat([...authors].sort())
-  state.author = "Todos";
+  authors = ["Todos los autores"].concat([...authors].sort())
+  state.author = "Todos los autores";
   let authorsOp = addOptions("autor", authors);
   authorsOp.on("change", function(d){
     state.author = d3.select(this).node().value;
@@ -85,13 +85,13 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   }
 
   function filterData() {
-    if (state.status == 'Todos') {
+    if (state.status == 'Todos los estados') {
       state.filteredData = state.data
     } else {
       state.filteredData = state.data.filter(d => d['descripcion']['estado'] == state.status)
     }
 
-    if (state.author != 'Todos') {
+    if (state.author != 'Todos los autores') {
       state.filteredData = state.filteredData.filter(function(d){
         let author = d['autores'];
         if (author != null) {
