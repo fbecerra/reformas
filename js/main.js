@@ -7,7 +7,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     filteredData: null,
     status: null,
     author: null,
-    height: null
+    height: null,
+    label: null
   }
 
   state.data = data;
@@ -103,6 +104,13 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
         }
       })
     }
+
+    if (state.label != '') {
+      state.filteredData = state.filteredData.filter(function(d){
+        let description = d['descripcion']['titulo'];
+        return description.toLowerCase().includes(state.label.toLowerCase());
+      })
+    }
   }
 
   function updatePlot() {
@@ -143,6 +151,14 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var width = window.innerWidth - margin.left - margin.right;
   state.height = state.data.length * lineHeight;
+
+  var searchBox = d3.select("#search-box");
+  searchBox.on("change", function(){
+    let searchLabel = d3.select(this).node().value;
+    state.label = searchLabel;
+    filterData();
+    updatePlot();
+  });
 
   var svg = d3.select("body").append("svg")
     .attr("viewBox", [0, 0, width + margin.left + margin.right, state.height + margin.bottom])
