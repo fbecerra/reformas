@@ -407,7 +407,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     let gProjects = g.selectAll(".project");
     var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d));
     var filteredP = gProjects.filter(d => state.filteredData.includes(d));
-    if (y(0) - lineHeight/2 < thisY && thisY < y(state.filteredData.length) + lineHeight/2 &&
+    if (y(0) - lineHeight/2 < thisY && thisY < y(state.filteredData.length) - lineHeight/2 &&
         margin.left < thisX  && thisX < width + 25){
       name
           .attr("transform", `translate(${x(project['tramitacion'][0]['FECHA'])},${y(index)})`)
