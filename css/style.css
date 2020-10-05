@@ -1,8 +1,7 @@
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
-  /* background-color: #fff7ec; */
-}
+  /* background-color: #fff7ec; */}
 
 .title {
   font-family: 'David Libre', serif;
@@ -61,6 +60,14 @@ input {
   cursor: pointer;
 }
 
+circle {
+  cursor: pointer;
+}
+
+.hidden {
+  cursor: default;
+}
+
 .tooltip {
   background: rgba(255,255,255,.9);
   border: 1px solid black;
@@ -91,10 +98,30 @@ input {
   top: 100%;
 }
 
-circle {
-  cursor: pointer;
+.footer {
+  border-top: 1px solid #ccc !important;
+  /* background-color: #f6f6f6; */
 }
 
-.hidden {
-  cursor: default;
+.footer a {
+  color: #525252;
+  text-decoration: underline;
+}
+
+.footer a:hover{
+  color: black;
+}
+
+.notes {
+  padding-top: 20px;
+  font-size: 12px;
+  font-family: 'Lato', sans-serif;
+  color: #525252;
+}
+
+h6 {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+  margin: 0;
 }
