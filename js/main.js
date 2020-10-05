@@ -186,8 +186,15 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var svg = d3.select("#viz").append("svg")
     .attr("viewBox", [0, 0, width + margin.left + margin.right, state.height + margin.bottom])
-    .attr("width", "auto")
-    .attr("height", "auto");
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", state.height + margin.bottom);
+
+  window.onresize = function(d){
+    let factor = svg.attr("height") / svg.attr("width");
+    let newWidth = window.innerWidth;
+    svg.attr("width", newWidth)
+      .attr("height", factor * newWidth);
+  }
 
   var colorScale = d3.schemeSpectral[9];
 
@@ -263,7 +270,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
           var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
               yOffset = tooltip.node().getBoundingClientRect().height;
-          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+          let widthFactor = window.innerWidth / (width + margin.left + margin.right);
+          tooltip.style("left", x(d['FECHA']) * widthFactor - xOffset + "px")
             .style("top", event.pageY - yOffset - 15 + "px")
             .transition().duration(200).style("opacity", tooltipOpacity);
         }
@@ -293,7 +301,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
           var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
               yOffset = tooltip.node().getBoundingClientRect().height;
-          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+          let widthFactor = window.innerWidth / (width + margin.left + margin.right);
+          tooltip.style("left", x(d['FECHA']) * widthFactor - xOffset + "px")
             .style("top", event.pageY - yOffset - 15 + "px")
             .transition().duration(200).style("opacity", tooltipOpacity);
         }
@@ -320,7 +329,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
           var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
               yOffset = tooltip.node().getBoundingClientRect().height;
-          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+          let widthFactor = window.innerWidth / (width + margin.left + margin.right);
+          tooltip.style("left", x(d['FECHA']) * widthFactor - xOffset + "px")
             .style("top", event.pageY - yOffset - 15 + "px")
             .transition().duration(200).style("opacity", tooltipOpacity);
         }
