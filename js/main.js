@@ -120,6 +120,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     tooltip.style("left", 0)
       .style("top", 0);
 
+    name.call(calloutName, null);
+
     var gProjects = g.selectAll(".project");
 
     var notFilteredP = gProjects.filter(d => !state.filteredData.includes(d))
