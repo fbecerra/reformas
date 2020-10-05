@@ -94,3 +94,7 @@ input {
 circle {
   cursor: pointer;
 }
+
+.hidden {
+  cursor: default;
+}

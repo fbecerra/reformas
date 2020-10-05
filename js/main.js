@@ -129,9 +129,13 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
     notFilteredP.transition().duration(500)
       .style("opacity", 0)
+    notFilteredP.selectAll("circle")
+      .classed("hidden", true)
     filteredP.transition().duration(1000)
       .style("opacity", 1)
-      .attr("transform", (d, i) => `translate(0,${y(i)})`);
+      .attr("transform", (d, i) => `translate(0,${y(i)})`)
+    filteredP.selectAll("circle")
+      .classed("hidden", false);
 
     d3.selectAll(".axis-line")
       .attr("y2", y(state.filteredData.length) - margin.top)
@@ -245,17 +249,20 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .attr("fill", "#225ea8")
       .attr("r", 3.5)
       .on("mouseover", function(event, d){
-        tooltip.html(`<p><strong>Sesion ${d['SESION']}</strong></p>
-              <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
-              <p><strong>Cámara:</strong> ${d['CAMARATRAMITE']}</p>
-              <p><strong>Etapa:</strong> ${d['ETAPDESCRIPCION']}</p>
-              <p><strong>Descripción:</strong> ${d['DESCRIPCIONTRAMITE']}</p>`)
+        let hidden = d3.select(this).classed("hidden");
+        if (!hidden) {
+          tooltip.html(`<p><strong>Sesion ${d['SESION']}</strong></p>
+                <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                <p><strong>Cámara:</strong> ${d['CAMARATRAMITE']}</p>
+                <p><strong>Etapa:</strong> ${d['ETAPDESCRIPCION']}</p>
+                <p><strong>Descripción:</strong> ${d['DESCRIPCIONTRAMITE']}</p>`)
 
-        var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
-            yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
-          .style("top", event.pageY - yOffset - 15 + "px")
-          .transition().duration(200).style("opacity", tooltipOpacity);
+          var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+              yOffset = tooltip.node().getBoundingClientRect().height;
+          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+            .style("top", event.pageY - yOffset - 15 + "px")
+            .transition().duration(200).style("opacity", tooltipOpacity);
+        }
       })
       .on("mouseleave", function(event, d){
         tooltip.transition().duration(200).style("opacity", 0);
@@ -271,18 +278,21 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .attr("fill", "#41b6c4")
       .attr("r", 3.5)
       .on("mouseover", function(event, d){
-        tooltip.html(`<p><strong>Oficio número ${d['NUMERO']}</strong></p>
-              <p><strong>Detalle:</strong> ${d['DESCRIPCION']}</p>
-              <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
-              <p><strong>Etapa:</strong> ${d['ETAPA']}</p>
-              <p><strong>Trámite:</strong> ${d['TRAMITE']}</p>
-              <p><strong>Tipo:</strong> ${d['TIPO']}</p>`)
+        let hidden = d3.select(this).classed("hidden");
+        if (!hidden) {
+          tooltip.html(`<p><strong>Oficio número ${d['NUMERO']}</strong></p>
+                <p><strong>Detalle:</strong> ${d['DESCRIPCION']}</p>
+                <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                <p><strong>Etapa:</strong> ${d['ETAPA']}</p>
+                <p><strong>Trámite:</strong> ${d['TRAMITE']}</p>
+                <p><strong>Tipo:</strong> ${d['TIPO']}</p>`)
 
-        var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
-            yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
-          .style("top", event.pageY - yOffset - 15 + "px")
-          .transition().duration(200).style("opacity", tooltipOpacity);
+          var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+              yOffset = tooltip.node().getBoundingClientRect().height;
+          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+            .style("top", event.pageY - yOffset - 15 + "px")
+            .transition().duration(200).style("opacity", tooltipOpacity);
+        }
       })
       .on("mouseleave", function(event, d){
         tooltip.transition().duration(200).style("opacity", 0);
@@ -298,15 +308,18 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .attr("fill", "#c7e9b4")
       .attr("r", 3.5)
       .on("mouseover", function(event, d){
-        tooltip.html(`<p><strong>${d['TRAMITE']}</strong></p>
-              <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
-              <p><strong>Etapa:</strong> ${d['ETAPA']}</p>`)
+        let hidden = d3.select(this).classed("hidden");
+        if (!hidden) {
+          tooltip.html(`<p><strong>${d['TRAMITE']}</strong></p>
+                <p><strong>Fecha:</strong> ${formatTime(d['FECHA'])}</p>
+                <p><strong>Etapa:</strong> ${d['ETAPA']}</p>`)
 
-        var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
-            yOffset = tooltip.node().getBoundingClientRect().height;
-        tooltip.style("left", x(d['FECHA']) - xOffset + "px")
-          .style("top", event.pageY - yOffset - 15 + "px")
-          .transition().duration(200).style("opacity", tooltipOpacity);
+          var xOffset = tooltip.node().getBoundingClientRect().width / 2.,
+              yOffset = tooltip.node().getBoundingClientRect().height;
+          tooltip.style("left", x(d['FECHA']) - xOffset + "px")
+            .style("top", event.pageY - yOffset - 15 + "px")
+            .transition().duration(200).style("opacity", tooltipOpacity);
+        }
       })
       .on("mouseleave", function(event, d){
         tooltip.transition().duration(200).style("opacity", 0);
