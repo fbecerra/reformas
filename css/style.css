@@ -60,6 +60,10 @@ input {
   cursor: pointer;
 }
 
+#viz {
+  margin: 0;
+}
+
 circle {
   cursor: pointer;
 }

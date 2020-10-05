@@ -186,8 +186,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   var svg = d3.select("#viz").append("svg")
     .attr("viewBox", [0, 0, width + margin.left + margin.right, state.height + margin.bottom])
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", state.height + margin.bottom);
+    .attr("width", "auto")
+    .attr("height", "auto");
 
   var colorScale = d3.schemeSpectral[9];
 
