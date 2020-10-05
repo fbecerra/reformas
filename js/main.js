@@ -116,6 +116,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
 
   function updatePlot() {
     svg.attr("viewBox", [0, 0, width + margin.left + margin.right, y(state.filteredData.length) + margin.bottom])
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", y(state.filteredData.length) + margin.bottom);
 
     tooltip.style("left", 0)
       .style("top", 0);
@@ -182,8 +184,10 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     updatePlot();
   });
 
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select("#viz").append("svg")
     .attr("viewBox", [0, 0, width + margin.left + margin.right, state.height + margin.bottom])
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", state.height + margin.bottom);
 
   var colorScale = d3.schemeSpectral[9];
 
