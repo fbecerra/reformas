@@ -98,7 +98,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
           if (Array.isArray(author)) {
             return author.map(e => Object.values(e)).flat().includes(state.author);
           } else {
-            return state.author == Object.values(d['autores']);
+            return state.author == Object.values(d['autores'])[0];
           }
         } else {
           return false;
