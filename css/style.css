@@ -1,7 +1,8 @@
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
-  /* background-color: #fff7ec; */}
+  /* background-color: #fff7ec; */
+}
 
 .title {
   font-family: 'David Libre', serif;
@@ -20,6 +21,7 @@ body {
 
 .form-inline, .form-group, select, input {
   width: 100% !important;
+  height: 2em;
 }
 
 .form-control {
@@ -104,7 +106,6 @@ circle {
 
 .footer {
   border-top: 1px solid #ccc !important;
-  /* background-color: #f6f6f6; */
 }
 
 .footer a {
@@ -128,4 +129,23 @@ h6 {
   font-weight: 600;
   padding: 0;
   margin: 0;
+}
+
+@media only screen and (max-width: 768px) {
+  body {
+    font-size: 12px;
+  }
+
+  .title h2 {
+    font-size: 24px;
+  }
+
+  .main-text, .notes {
+    padding: 0 30px;
+  }
+
+  .selector {
+    padding: 10px 30px;
+  }
+
 }

@@ -2,6 +2,8 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   data = projects[0];
   console.log(data)
 
+  var mobile = window.innerWidth < 768;
+
   var state = {
     data: null,
     filteredData: null,
@@ -146,15 +148,21 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
       .attr("transform", `translate(0,${y(state.filteredData.length)})`)
   }
 
-  const lineHeight = 12,
-        iconHeight = 10,
+  const iconHeight = 10,
         circleOpacity = 0.9,
         tooltipOpacity = 1.0;
 
   let minDate = d3.min(data, d => d3.min(d['tramitacion'], e => e['FECHA'])),
       maxDate = d3.max(data, d => d3.max(d['tramitacion'], e => e['FECHA']));
 
-  var margin = {top: 60, right: 20, bottom: 80, left: 180};
+  var margin, lineHeight;
+  if (mobile) {
+    lineHeight = 10;
+    margin = {top: 30, right: 20, bottom: 20, left: 100};
+  } else {
+    lineHeight = 12;
+    margin = {top: 60, right: 20, bottom: 80, left: 180};
+  }
 
   var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -206,9 +214,10 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
     .domain([0, data.length])
     .rangeRound([margin.top + lineHeight/2, state.height])
 
+  var ticks = mobile ? 3 : null;
   var xAxis = g => g
     .attr("transform", `translate(0,${margin.top})`)
-    .call(d3.axisTop(x))
+    .call(d3.axisTop(x).ticks(ticks))
     .call(g => g.selectAll(".tick line").clone()
               .attr("stroke-opacity", 0.05)
               .attr("class", "axis-line")
@@ -218,7 +227,7 @@ Promise.all([d3.json("data/reformas.json")]).then(function(projects){
   var xAxisBottom = g => g
     .attr("transform", `translate(0,${state.height})`)
     .attr("class", "bottom-axis")
-    .call(d3.axisBottom(x))
+    .call(d3.axisBottom(x).ticks(ticks))
     .call(g => g.selectAll(".domain").remove())
 
   svg.append("g")
